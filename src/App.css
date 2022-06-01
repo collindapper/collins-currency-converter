@@ -36,3 +36,19 @@
     transform: rotate(360deg);
   }
 }
+
+.navbar {
+  background-color: #0A0;
+}
+
+.navCurrencyConverter,
+.navExchangeRates {
+  font-size: 110%;
+  text-decoration: none;
+  color: white;
+}
+
+.navCurrencyConverter:hover,
+.navExchangeRates:hover {
+  color: black;
+}
