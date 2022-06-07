@@ -1,44 +1,22 @@
-.App {
-  text-align: center;
+/* Body */
+body {
+  background-image: url(../public/images/Green\ Background\ Desktop.png);
+  height: 100vh;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.fontPrimary {
+  font-family: 'Barlow Condensed', sans-serif;
+  color: #004D00;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Navigation Bar */
+.appLogo {
+  height:120px;
+  width: auto;
 }
 
 .navbar {
-  background-color: #0A0;
+  background-color: #004D00;
 }
 
 .navCurrencyConverter,
@@ -50,5 +28,49 @@
 
 .navCurrencyConverter:hover,
 .navExchangeRates:hover {
-  color: black;
+  color: #0d6efd;
+}
+
+/* Currency Converter & Exchange Ratess */
+.switchButtonMobile {
+  transform: rotate(90deg);
+}
+
+.currencyConverterRow,
+.exchangeRatesRow {
+  background-color: white;
+}
+
+
+.currencyConverterRow {
+  height: 75vh;
+}
+
+@media only screen and (min-width: 0px) {
+  .exchangeContainer {
+    columns: 2 auto;  
+  }
+}
+
+@media only screen and (min-width: 780px) {
+  .exchangeContainer {
+    columns: 3 auto;  
+  }
+}
+
+/* Footer */
+.footerText,
+.footerLink,
+.portfolioLink,
+.linkedinLink,
+.githubLink {
+  color: #525252;
+  text-decoration: none;
+}
+
+.footerLink:hover,
+.portfolioLink:hover,
+.linkedinLink:hover,
+.githubLink:hover {
+  color: #0d6efd;
 }

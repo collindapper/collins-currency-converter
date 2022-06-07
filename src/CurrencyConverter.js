@@ -1,180 +1,216 @@
 import React, { useState } from 'react';
-import { Link } from "react-router-dom";
+import Currencies from './currencies';
 import { json, checkStatus } from './utils';
 import 'bootstrap/dist/css/bootstrap.css';
-
-const Rates = (props) => {
-  const {
-    Amount,
-    Base,
-    Date,
-    Rates,
-  } = props.rates;
-
-  return (
-    <div className="row">
-      <p className="display-4">Output:</p>
-      <Link to={`/${Base}/`}>
-        <h1>{Rates}</h1>
-      </Link>
-    </div>
-  )
-}
+import Footer from './Footer';
 
 class CurrencyConverter extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      amount: '',
+      conversionAmount: 1,
       results: [],
-      fromCurrency: '',
-      toCurrency: '',
+      baseCurrency: 'USD',
+      convertedCurrency: 'EUR',
       error: '',
     };
 
-    this.handleChange = this.handleChange.bind(this);
+    this.handleAmountChange = this.handleAmountChange.bind(this);
+    this.handleBaseCurrencyChange = this.handleBaseCurrencyChange.bind(this);
+    this.handleConvertedCurrencyChange = this.handleConvertedCurrencyChange.bind(this);
+    this.handleSwitchCurrency = this.handleSwitchCurrency.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleChange(event) {
-    this.setState({ amount: event.target.value, fromCurrency: event.target.value, toCurrency: event.target.value });
+  
+
+  handleAmountChange(event) {
+    event.preventDefault();
+    this.setState({ conversionAmount: event.target.value });
   }
 
-  handleSubmit(event) {
+
+
+  handleBaseCurrencyChange(event) {
     event.preventDefault();
-    let { amount, fromCurrency, toCurrency } = this.state;
-    amount = amount.trim();
-    if (!amount) {
+    let { conversionAmount, baseCurrency, convertedCurrency } = this.state;
+    this.setState({ baseCurrency: event.target.value });
+
+    if (!conversionAmount) {
       return;
     }
 
-    fetch(`https://altexchangerateapi.herokuapp.com/latest?amount=${amount}&from=${fromCurrency}&to=${toCurrency}`)
-      .then(checkStatus)
-      .then(json)
-      .then((data) => {
-        if (data.Reponse === 'False') {
-          throw new Error(data.Error);
-        }
+      fetch(`https://altexchangerateapi.herokuapp.com/latest?amount=${conversionAmount}&from=${baseCurrency}&to=${convertedCurrency}`)
+        .then(checkStatus)
+        .then(json)
+        .then((data) => {
+          if (data.amount != parseInt(conversionAmount)) {
+            console.log('Error');
+            throw new Error(data.Error);
+          }
 
-        if (data.Response === 'True' && data.Search) {
-          console.log(data);
-          this.setState({ results: data.Search, error: '' });
-        }
-      })
-      .catch((error) => {
-        this.setState({ error: error.message });
-        console.log(error);
-      })
+          if (data.amount === parseInt(conversionAmount) && data.rates) {
+            console.log(data);
+            this.setState({ results: data.rates, error: '', symbol: convertedCurrency });
+            this.handleSubmit(event);
+          }
+        })
+        .catch((error) => {
+          this.setState({ error: error.message });
+          console.log(error);
+        })
   }
 
 
+
+  handleConvertedCurrencyChange(event) {
+    event.preventDefault();
+    let { conversionAmount, baseCurrency, convertedCurrency } = this.state;
+    this.setState({ convertedCurrency: event.target.value });
+
+    if (!conversionAmount) {
+      return;
+    }
+
+      fetch(`https://altexchangerateapi.herokuapp.com/latest?amount=${conversionAmount}&from=${baseCurrency}&to=${convertedCurrency}`)
+        .then(checkStatus)
+        .then(json)
+        .then((data) => {
+          if (data.amount != parseInt(conversionAmount)) {
+            console.log('Error');
+            throw new Error(data.Error);
+          }
+
+          if (data.amount === parseInt(conversionAmount) && data.rates) {
+            console.log(data);
+            this.setState({ results: data.rates, error: '', symbol: convertedCurrency });
+            this.handleSubmit(event);
+          }
+        })
+        .catch((error) => {
+          this.setState({ error: error.message });
+          console.log(error);
+        })
+  }
+
+
+
+  handleSwitchCurrency(event) {
+    event.preventDefault();
+    let { conversionAmount, baseCurrency, convertedCurrency } = this.state;
+    this.setState({ baseCurrency: convertedCurrency, convertedCurrency: baseCurrency });
+
+    if (!conversionAmount) {
+      return;
+    }
+
+      fetch(`https://altexchangerateapi.herokuapp.com/latest?amount=${conversionAmount}&from=${baseCurrency}&to=${convertedCurrency}`)
+        .then(checkStatus)
+        .then(json)
+        .then((data) => {
+          if (data.amount != parseInt(conversionAmount)) {
+            console.log('Error');
+            throw new Error(data.Error);
+          }
+
+          if (data.amount === parseInt(conversionAmount) && data.rates) {
+            console.log(data);
+            this.setState({ results: data.rates, error: '', symbol: convertedCurrency });
+            this.handleSubmit(event);
+          }
+        })
+        .catch((error) => {
+          this.setState({ error: error.message });
+          console.log(error);
+        })
+  }
+
+
+
+  handleSubmit(event) {
+    event.preventDefault();
+    let { conversionAmount, baseCurrency, convertedCurrency } = this.state;
+    
+    if (!conversionAmount) {
+      return;
+    }
+
+      fetch(`https://altexchangerateapi.herokuapp.com/latest?amount=${conversionAmount}&from=${baseCurrency}&to=${convertedCurrency}`)
+        .then(checkStatus)
+        .then(json)
+        .then((data) => {
+          if (data.amount != parseInt(conversionAmount)) {
+            console.log('Error');
+            throw new Error(data.Error);
+          }
+
+          if (data.amount === parseInt(conversionAmount) && data.rates) {
+            console.log(data);
+            this.setState({ results: data.rates, error: '', symbol: convertedCurrency });
+            
+          }
+        })
+        .catch((error) => {
+          this.setState({ error: error.message });
+          console.log(error);
+        })
+  }
+
+  
+
   render() {
-    const { amount, results, fromCurrency, toCurrency, error } = this.state;
+    const { conversionAmount, results, baseCurrency, convertedCurrency, symbol } = this.state;
+    
 
     return (
       <div className="container mt-4">
-        <div className="d-flex row rounded shadow">
+        <div className="d-flex row currencyConverterRow rounded shadow-lg">
 
-          <p className="display-2 text-center">Currency Converter</p>
+          <p className="display-1 text-center my-auto fontPrimary">Currency Converter</p>
 
-          <form className="d-md-flex mt-4 mb-4 justify-content-between" onSubmit={this.handleSubmit}>
+          <form className="d-md-flex mb-auto pb-2 justify-content-between border-bottom" onSubmit={this.handleSubmit}>
 
             <div className="col-10 col-md-3 mx-auto mx-md-4">
               <h4 className="mx-auto">Amount:</h4>
-              <input className="d-flex form-control w-100" type="number" onChange={this.handleChange} value={amount} placeholder="1"></input>
+              <input className="d-flex form-control w-100 shadow" type="number" onChange={this.handleAmountChange} value={conversionAmount} placeholder="Enter Amount" required></input>
             </div>
 
             <div className="col-10 col-md-3 mx-auto mx-md-4 mt-4 mt-md-0">
               <h4 className="mx-auto">From:</h4>
-              <select className="form-select" aria-label="Default select example">
-                <option default>Choose Currency</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>AUD</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>BGN</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>BRL</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>CAD</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>CHF</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>CNY</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>CZK</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>DKK</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>EUR</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>GBP</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>HKD</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>HRK</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>HUF</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>IDR</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>ILS</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>INR</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>ISK</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>JPY</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>KRW</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>MXN</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>MYR</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>NOK</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>NZD</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>PHP</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>PLN</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>RON</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>RUB</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>SEK</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>SGD</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>THB</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>TRY</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>USD</option>
-                <option onChange={this.handleChange} name="fromCurrency" value={fromCurrency}>ZAR</option>
+              <select className="form-select shadow" onChange={this.handleBaseCurrencyChange} value={baseCurrency} aria-label="Default select example">
+                {Currencies.options.map(currency => (
+                  <option key={currency.name} value={currency.value}>
+                    {currency.value} : {currency.name}
+                  </option>
+                ))}
               </select>
             </div>
 
-            <div className="col-10 col-md-3 mx-auto mx-md-4 mt-4 mt-md-0">
+            <button type="button" onClick={this.handleSwitchCurrency} className="d-none d-md-flex mx-auto btn btn-primary mt-4 mt-md-auto mb-md-1 shadow"><i className="fa-solid fa-arrow-right-arrow-left"></i></button>
+            <button type="button" onClick={this.handleSwitchCurrency} className="d-flex d-md-none mx-auto btn btn-primary shadow mt-4 mt-md-auto mb-md-1 shadow"><i className="fa-solid fa-arrow-right-arrow-left switchButtonMobile"></i></button>
+
+            <div className="col-10 col-md-3 mx-auto mx-md-4 mt-md-0">
               <h4 className="mx-auto">To:</h4>
-              <select className="form-select" aria-label="Default select example">
-                <option default>Choose Currency</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>AUD</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>BGN</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>BRL</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>CAD</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>CHF</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>CNY</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>CZK</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>DKK</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>EUR</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>GBP</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>HKD</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>HRK</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>HUF</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>IDR</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>ILS</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>INR</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>ISK</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>JPY</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>KRW</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>MXN</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>MYR</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>NOK</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>NZD</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>PHP</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>PLN</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>RON</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>RUB</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>SEK</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>SGD</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>THB</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>TRY</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>USD</option>
-                <option onChange={this.handleChange} name="toCurrency" value={toCurrency}>ZAR</option>
+              <select className="form-control shadow" onChange={this.handleConvertedCurrencyChange} value={convertedCurrency} aria-label="Default select example">
+                {Currencies.options.map(currency => (
+                  <option key={currency.name} value={currency.value}>
+                    {currency.value} : {currency.name}
+                  </option>
+                ))}
               </select>
             </div>
-
-            <button type="submit" className="d-flex mx-auto btn btn-success mt-4 mt-md-auto">Submit</button>
+              <button type="submit" className="d-flex mx-auto btn btn-primary  shadow mt-4 mt-md-auto">Submit</button>
           </form>
+          <div className="shadow-lg mb-auto">
+          <div className="col-5 mx-auto">
+            <h5 className="display-5 fontPrimary">{conversionAmount} {baseCurrency} =</h5>
+          </div>
+          <div className="col-8 mx-auto text-center fontPrimary">
+            <h3 className="display-2">{results[symbol]} {convertedCurrency} </h3>
+          </div>
+          </div>
         </div>
-        {(() => {
-          if (error) {
-            return error;
-          }
-          return results.map((rates) => {
-            return <Rates key={rates.Base} amount={amount} />
-          })
-        })()}
+        <Footer />
       </div>
     );
   }
