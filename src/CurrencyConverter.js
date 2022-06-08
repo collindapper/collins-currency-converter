@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Currencies from './currencies';
+import Chart from 'chart.js/auto';
 import { json, checkStatus } from './utils';
 import 'bootstrap/dist/css/bootstrap.css';
 import Footer from './Footer';
@@ -7,6 +8,9 @@ import Footer from './Footer';
 class CurrencyConverter extends React.Component {
   constructor(props) {
     super(props);
+
+    const params = new URLSearchParams(props.location.search);
+
     this.state = {
       conversionAmount: 1,
       results: [],
@@ -20,6 +24,7 @@ class CurrencyConverter extends React.Component {
     this.handleConvertedCurrencyChange = this.handleConvertedCurrencyChange.bind(this);
     this.handleSwitchCurrency = this.handleSwitchCurrency.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.chartRef = React.createRef();
   }
 
   
@@ -127,6 +132,30 @@ class CurrencyConverter extends React.Component {
 
 
 
+  getHistoricalRates = (baseCurrency, convertedCurrency) => {
+    const endDate = new Date().toISOString().split('T')[0];
+    const startDate = new Date((new Date).getTime() - (30 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0];
+    let { results } = this.state;
+    const rate = results.convertedCurrency
+    fetch(`https://altexchangerateapi.herokuapp.com/${startDate}..${endDate}?from=${baseCurrency}&to=${convertedCurrency}`)
+      .then(checkStatus)
+      .then(json)
+      .then(data => {
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        const chartLabels = Object.keys(data.rates);
+        const chartData = Object.values(data.rates).map(rate => rate[convertedCurrency]);
+        const chartLabel = `${baseCurrency}/${convertedCurrency}`;
+        this.buildChart(chartLabels, chartData, chartLabel);
+      })
+      .catch(error => console.error(error.message));
+  }
+
+
+
+
   handleSubmit(event) {
     event.preventDefault();
     let { conversionAmount, baseCurrency, convertedCurrency } = this.state;
@@ -147,7 +176,32 @@ class CurrencyConverter extends React.Component {
           if (data.amount === parseInt(conversionAmount) && data.rates) {
             console.log(data);
             this.setState({ results: data.rates, error: '', symbol: convertedCurrency });
-            
+            this.getHistoricalRates(baseCurrency, convertedCurrency);
+            this.buildChart = (labels, data, label) => {
+              const chartRef = this.chartRef.current.getContext("2d");
+          
+              if (typeof this.chart !== "undefined") {
+                this.chart.destroy();
+              }
+          
+              this.chart = new Chart(this.chartRef.current.getContext("2d"), {
+                type: 'line',
+                data: {
+                  labels,
+                  datasets: [
+                    {
+                      label: label,
+                      data,
+                      fill: false,
+                      tension: 0,
+                    }
+                  ]
+                },
+                options: {
+                  responsive: true,
+                }
+              })
+            }
           }
         })
         .catch((error) => {
@@ -156,13 +210,17 @@ class CurrencyConverter extends React.Component {
         })
   }
 
-  
+
+
+   
+
 
   render() {
     const { conversionAmount, results, baseCurrency, convertedCurrency, symbol } = this.state;
     
 
     return (
+      <React.Fragment>
       <div className="container mt-4">
         <div className="d-flex row currencyConverterRow rounded shadow-lg">
 
@@ -209,9 +267,11 @@ class CurrencyConverter extends React.Component {
             <h3 className="display-2">{results[symbol]} {convertedCurrency} </h3>
           </div>
           </div>
+          <canvas ref={this.chartRef} />
         </div>
         <Footer />
       </div>
+      </React.Fragment>
     );
   }
 }
